@@ -12,7 +12,8 @@ std::vector<Player> findSameMmrCategorySorted(const std::vector<Player>& all, co
 std::vector<Player> findSameMmrAndBehavior(const std::vector<Player>& mmrSorted, const Player& user);
 void dequeuePlayers(std::queue<Player>& q, const std::vector<int>& ids, std::vector<Player>& out);
 
-bool buildTeams(std::queue<Player>& matchmakingQueue,
+bool buildTeams(
+    std::queue<Player>& matchmakingQueue,
                 const Player& user,
                 std::vector<Player>& teamA,
                 std::vector<Player>& teamB,

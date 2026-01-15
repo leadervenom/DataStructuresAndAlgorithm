@@ -100,17 +100,25 @@ void printTeam(const string& name, const vector<Player>& team) {
 }
 
 int main() {
+
+    //variable database is crated to load players from the csv file into a searchable vector
     vector<Player> database = loadPlayersFromCsv("players.csv");
     if (database.empty()) {
         cout << "Failed to load players.csv or no players found.\n";
         return 0;
     }
 
+    //creates empty queue to store Player objects  it represents the players waiting for matchmaking   
+    //loops over all players in database /// the auto& is basically a function that says find the type for me
+    //basically for every player in database add current player to the back of the queue(ENQUEUING)
     queue<Player> matchmakingQueue;
-    for (const auto& p : database) {
-        matchmakingQueue.push(p);
+    for (const auto& p : database) { 
+        matchmakingQueue.push(p); 
     }
 
+    //matchmaking is assumed to be no ,so start is initialized as n
+    // if answer is not equals to y or Y then cancel or not suitable as it would continue regardless of one of them being true so && is suitable
+    //the auto function is better to use so that if the Player type changes type it does not become a concern
     char start = 'n';
     cout << "Start matchmaking? (y/n): ";
     cin >> start;
@@ -123,6 +131,8 @@ int main() {
     cout << "Enter player ID: ";
     cin >> userId;
 
+    //converst players in queue to vector why because queue cant be searched or accessed from the middle so only the back or the front is accessible
+    //
     vector<Player> allPlayers = queueToVector(matchmakingQueue);
     Player user{0, 0, 0, Role::Roam};
     bool found = false;
