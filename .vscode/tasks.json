@@ -14,6 +14,8 @@
                 "${workspaceFolder}\\role.cpp",
                 "${workspaceFolder}\\role_assignment.cpp",
                 "${workspaceFolder}\\hero.cpp",
+                "${workspaceFolder}\\priority.cpp",
+                "${workspaceFolder}\\priority.h",
                 "${workspaceFolder}\\ban_system.cpp",
                 "-o",
                 "${workspaceFolder}\\main.exe"

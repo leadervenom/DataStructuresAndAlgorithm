@@ -12,6 +12,7 @@ struct Player {
     Role role;
 };
 
+// Buckets for MMR/behavior matching.
 enum class Category {
     VeryBad,
     Bad,

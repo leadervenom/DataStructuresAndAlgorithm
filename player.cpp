@@ -1,5 +1,6 @@
 #include "player.h"
 
+// Map MMR score into a coarse category.
 Category mmrCategory(int mmr) {
     if (mmr <= 399) return Category::VeryBad;
     if (mmr <= 799) return Category::Bad;
@@ -8,6 +9,7 @@ Category mmrCategory(int mmr) {
     return Category::VeryGood;
 }
 
+// Map behavior score into a coarse category.
 Category behaviorCategory(int behavior) {
     if (behavior <= 20) return Category::VeryBad;
     if (behavior <= 40) return Category::Bad;
@@ -16,6 +18,7 @@ Category behaviorCategory(int behavior) {
     return Category::VeryGood;
 }
 
+// Display label for a category enum.
 std::string categoryLabel(Category c) {
     switch (c) {
         case Category::VeryBad: return "Very Bad";

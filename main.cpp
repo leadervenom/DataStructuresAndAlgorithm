@@ -4,15 +4,18 @@
 #include <queue>
 #include <sstream>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 #include "ban_system.h"
 #include "hero.h"
 #include "matchmaking.h"
+#include "priority.h"
 #include "player.h"
 
 using namespace std;
 
+// Parse a single role token like "R" or "Mid" into Role enum.
 bool parseRoleToken(const string& token, Role& out) {
     for (char c : token) {
         if (!isspace(static_cast<unsigned char>(c))) {
@@ -22,6 +25,7 @@ bool parseRoleToken(const string& token, Role& out) {
     return false;
 }
 
+// Parse CSV line into a Player record.
 bool parsePlayerLine(const string& line, Player& out) {
     if (line.empty()) {
         return false;
@@ -59,6 +63,7 @@ bool parsePlayerLine(const string& line, Player& out) {
     return true;
 }
 
+// Load all players from CSV file into a vector.
 vector<Player> loadPlayersFromCsv(const string& path) {
     vector<Player> players;
     ifstream file(path);
@@ -86,6 +91,7 @@ vector<Player> loadPlayersFromCsv(const string& path) {
     return players;
 }
 
+// Print a team roster with key stats.
 void printTeam(const string& name, const vector<Player>& team) {
     cout << name << " (" << team.size() << " players)" << "\n";
     for (const auto& p : team) {
@@ -99,6 +105,7 @@ void printTeam(const string& name, const vector<Player>& team) {
     cout << "\n";
 }
 
+// Entry point: load players, build teams, run ban phase.
 int main() {
 
     //variable database is crated to load players from the csv file into a searchable vector
@@ -132,7 +139,7 @@ int main() {
     cin >> userId;
 
     //converst players in queue to vector why because queue cant be searched or accessed from the middle so only the back or the front is accessible
-    //
+    //objects must be initialized so user(0,0,0,Role::Roam) is used as a dummy starter object but is overwritten
     vector<Player> allPlayers = queueToVector(matchmakingQueue);
     Player user{0, 0, 0, Role::Roam};
     bool found = false;
@@ -149,6 +156,7 @@ int main() {
         return 0;
     }
 
+    //for user to choose the role they desire
     Role desiredRole;
     char roleInput = '\0';
     while (true) {
@@ -178,7 +186,10 @@ int main() {
     vector<Player> teamB;
     string error;
 
-    if (!buildTeams(matchmakingQueue, user, teamA, teamB, error)) {
+    const string priorityPath = "priority.csv";
+    unordered_map<int, int> priority = loadPriority(priorityPath);
+
+    if (!buildTeams(matchmakingQueue, user, teamA, teamB, priority, error)) {
         cout << error << "\n";
         return 0;
     }
@@ -187,6 +198,17 @@ int main() {
     printTeam("Team A", teamA);
     cout << "TEAM B:\n";
     printTeam("Team B", teamB);
+
+    vector<int> selectedIds;
+    selectedIds.reserve(teamA.size() + teamB.size());
+    for (const auto& p : teamA) {
+        selectedIds.push_back(p.id);
+    }
+    for (const auto& p : teamB) {
+        selectedIds.push_back(p.id);
+    }
+    updatePriorityForRound(allPlayers, selectedIds, priority);
+    savePriority(priorityPath, priority);
 
     vector<Hero> heroes = loadHeroesFromCsv("heroes.csv");
     if (heroes.empty()) {

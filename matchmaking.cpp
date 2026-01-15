@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <cmath>
 
+// Consume queue into a vector for easier access.
 std::vector<Player> queueToVector(std::queue<Player> q) {
     std::vector<Player> out;
     while (!q.empty()) {
@@ -13,6 +14,7 @@ std::vector<Player> queueToVector(std::queue<Player> q) {
     return out;
 }
 
+// Select players in user's MMR category and sort by closeness.
 std::vector<Player> findSameMmrCategorySorted(const std::vector<Player>& all, const Player& user) {
     std::vector<Player> result;
     Category userMmr = mmrCategory(user.mmr);
@@ -32,6 +34,7 @@ std::vector<Player> findSameMmrCategorySorted(const std::vector<Player>& all, co
     return result;
 }
 
+// Further filter candidates to match behavior category.
 std::vector<Player> findSameMmrAndBehavior(const std::vector<Player>& mmrSorted, const Player& user) {
     std::vector<Player> result;
     Category userMmr = mmrCategory(user.mmr);
@@ -44,6 +47,7 @@ std::vector<Player> findSameMmrAndBehavior(const std::vector<Player>& mmrSorted,
     return result;
 }
 
+// Remove chosen ids from queue and append to output vector.
 void dequeuePlayers(std::queue<Player>& q, const std::vector<int>& ids, std::vector<Player>& out) {
     int sz = static_cast<int>(q.size());
     for (int i = 0; i < sz; ++i) {
@@ -64,10 +68,12 @@ void dequeuePlayers(std::queue<Player>& q, const std::vector<int>& ids, std::vec
     }
 }
 
+// Build teams by MMR/behavior filter, then role assignment.
 bool buildTeams(std::queue<Player>& matchmakingQueue,
                 const Player& user,
                 std::vector<Player>& teamA,
                 std::vector<Player>& teamB,
+                const std::unordered_map<int, int>& priority,
                 std::string& error) {
     std::vector<Player> allPlayers = queueToVector(matchmakingQueue);
     std::vector<Player> mmrSorted = findSameMmrCategorySorted(allPlayers, user);
@@ -82,7 +88,7 @@ bool buildTeams(std::queue<Player>& matchmakingQueue,
     std::vector<int> teamBIds;
     teamAIds.push_back(user.id);
 
-    if (!pickRoleTeams(sameBoth, user, teamAIds, teamBIds, error)) {
+    if (!pickRoleTeams(sameBoth, user, teamAIds, teamBIds, priority, error)) {
         return false;
     }
 
