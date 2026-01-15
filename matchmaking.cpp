@@ -8,6 +8,7 @@
 std::vector<Player> queueToVector(std::queue<Player> q) {
     std::vector<Player> out;
     while (!q.empty()) {
+        // Preserve order while draining the queue copy.
         out.push_back(q.front());
         q.pop();
     }
@@ -24,6 +25,7 @@ std::vector<Player> findSameMmrCategorySorted(const std::vector<Player>& all, co
             result.push_back(p);
         }
     }
+    // Sort higher MMR first, then closer to the user's MMR.
     std::sort(result.begin(), result.end(), [&](const Player& a, const Player& b) {
         if (a.mmr != b.mmr) return a.mmr > b.mmr;
         int da = std::abs(a.mmr - user.mmr);
@@ -40,6 +42,7 @@ std::vector<Player> findSameMmrAndBehavior(const std::vector<Player>& mmrSorted,
     Category userMmr = mmrCategory(user.mmr);
     Category userBehavior = behaviorCategory(user.behavior);
     for (const auto& p : mmrSorted) {
+        // Keep only players matching both MMR and behavior categories.
         if (mmrCategory(p.mmr) == userMmr && behaviorCategory(p.behavior) == userBehavior) {
             result.push_back(p);
         }
@@ -61,8 +64,10 @@ void dequeuePlayers(std::queue<Player>& q, const std::vector<int>& ids, std::vec
             }
         }
         if (selected) {
+            // Move selected players to output.
             out.push_back(p);
         } else {
+            // Keep non-selected players in the queue.
             q.push(p);
         }
     }
@@ -79,6 +84,7 @@ bool buildTeams(std::queue<Player>& matchmakingQueue,
     std::vector<Player> mmrSorted = findSameMmrCategorySorted(allPlayers, user);
     std::vector<Player> sameBoth = findSameMmrAndBehavior(mmrSorted, user);
 
+    // Need at least 9 others to make two full 5v5 teams.
     if (sameBoth.size() < 9) {
         error = "Not enough matching players for 5v5 in the same MMR and behavior category.";
         return false;
@@ -92,6 +98,7 @@ bool buildTeams(std::queue<Player>& matchmakingQueue,
         return false;
     }
 
+    // Remove team members from queue into team vectors.
     dequeuePlayers(matchmakingQueue, teamAIds, teamA);
     dequeuePlayers(matchmakingQueue, teamBIds, teamB);
 

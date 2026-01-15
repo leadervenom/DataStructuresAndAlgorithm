@@ -18,10 +18,12 @@ using namespace std;
 // Parse a single role token like "R" or "Mid" into Role enum.
 bool parseRoleToken(const string& token, Role& out) {
     for (char c : token) {
+        // Accept the first non-space character as the role code.
         if (!isspace(static_cast<unsigned char>(c))) {
             return roleFromChar(c, out);
         }
     }
+    // No non-space character found.
     return false;
 }
 
@@ -72,6 +74,7 @@ bool parsePlayerLine(const string& line, Player& out) {
     // If role token exists, parse it into a Role enum.
     if (!parseRoleToken(token, out.role)) return false;
 
+    // Parsed all required fields successfully.
     return true;
 }
 
@@ -94,6 +97,7 @@ vector<Player> loadPlayersFromCsv(const string& path) {
     }
 
     while (getline(file, line)) {
+        // Parse each remaining line into a Player record.
         Player p;
         if (parsePlayerLine(line, p)) {
             players.push_back(p);
@@ -105,8 +109,10 @@ vector<Player> loadPlayersFromCsv(const string& path) {
 
 // Print a team roster with key stats.
 void printTeam(const string& name, const vector<Player>& team) {
+    // Print a title line with roster size.
     cout << name << " (" << team.size() << " players)" << "\n";
     for (const auto& p : team) {
+        // Print each player's details on a single line.
         cout << "ID: " << p.id
              << " | MMR: " << p.mmr
              << " (" << categoryLabel(mmrCategory(p.mmr)) << ")"
@@ -172,6 +178,7 @@ int main() {
     Role desiredRole;
     char roleInput = '\0';
     while (true) {
+        // Keep asking until a valid role code is provided.
         cout << "Choose role [R/r=Roam, J/j=Jungler, E/e=Exp, G/g=Gold, M/m=Mid]: ";
         cin >> roleInput;
         if (roleFromChar(roleInput, desiredRole)) {

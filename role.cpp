@@ -1,6 +1,7 @@
 #include "role.h"
 
 bool roleFromChar(char c, Role& out) {
+    // Map a single character to a role enum.
     switch (c) {
         case 'R':
         case 'r':
@@ -28,6 +29,7 @@ bool roleFromChar(char c, Role& out) {
 }
 
 std::string roleLabel(Role r) {
+    // Convert role enum to a display label.
     switch (r) {
         case Role::Roam: return "Roam";
         case Role::Jungler: return "Jungler";
@@ -35,10 +37,12 @@ std::string roleLabel(Role r) {
         case Role::Gold: return "Gold";
         case Role::Mid: return "Mid";
     }
+    // Fallback for unexpected values.
     return "Unknown";
 }
 
 char roleCode(Role r) {
+    // Convert role enum to a single-character code.
     switch (r) {
         case Role::Roam: return 'R';
         case Role::Jungler: return 'J';
@@ -46,11 +50,13 @@ char roleCode(Role r) {
         case Role::Gold: return 'G';
         case Role::Mid: return 'M';
     }
+    // Fallback character when role is unknown.
     return '?';
 }
 
 Role roleFromIndex(int index) {
     int value = index % 5;
+    // Normalize negative values into the 0-4 range.
     if (value < 0) value += 5;
     switch (value) {
         case 0: return Role::Roam;
@@ -59,5 +65,6 @@ Role roleFromIndex(int index) {
         case 3: return Role::Gold;
         case 4: return Role::Mid;
     }
+    // Default to Roam for unexpected indices.
     return Role::Roam;
 }

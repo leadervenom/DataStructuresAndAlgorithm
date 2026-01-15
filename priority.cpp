@@ -15,6 +15,7 @@ std::unordered_map<int, int> loadPriority(const std::string& path) {
 
     std::string line;
     while (std::getline(file, line)) {
+        // Skip blank lines and malformed rows.
         if (line.empty()) {
             continue;
         }
@@ -41,6 +42,7 @@ std::unordered_map<int, int> loadPriority(const std::string& path) {
         if (misses < 0) {
             misses = 0;
         }
+        // Store the last observed count for each id.
         priority[id] = misses;
     }
 
@@ -54,6 +56,7 @@ void savePriority(const std::string& path, const std::unordered_map<int, int>& p
     for (const auto& entry : priority) {
         rows.push_back(entry);
     }
+    // Sort by player id to keep file stable.
     std::sort(rows.begin(), rows.end(),
               [](const auto& a, const auto& b) { return a.first < b.first; });
 
@@ -62,6 +65,7 @@ void savePriority(const std::string& path, const std::unordered_map<int, int>& p
         return;
     }
     for (const auto& row : rows) {
+        // Write "id,misses" per line.
         file << row.first << "," << row.second << "\n";
     }
 }
@@ -78,8 +82,10 @@ void updatePriorityForRound(const std::vector<Player>& allPlayers,
             current = it->second;
         }
         if (selected.find(p.id) != selected.end()) {
+            // Selected players reset their miss count.
             priority[p.id] = 0;
         } else {
+            // Everyone else increments their miss count.
             priority[p.id] = current + 1;
         }
     }
@@ -89,6 +95,7 @@ void updatePriorityForRound(const std::vector<Player>& allPlayers,
 int getPriority(const std::unordered_map<int, int>& priority, int playerId) {
     auto it = priority.find(playerId);
     if (it == priority.end()) {
+        // Default to 0 if the player isn't tracked yet.
         return 0;
     }
     return it->second;

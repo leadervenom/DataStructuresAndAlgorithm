@@ -4,6 +4,7 @@
 
 // Ordered list of roles used for team composition.
 static std::vector<Role> allRoles() {
+    // Keep a stable role order for team composition.
     return {Role::Roam, Role::Jungler, Role::Exp, Role::Gold, Role::Mid};
 }
 
@@ -19,6 +20,7 @@ static bool pickRole(const std::vector<Player>& candidates,
         if (p.role != role || used.find(p.id) != used.end()) {
             continue;
         }
+        // Choose the candidate with the highest miss count.
         int pPriority = 0;
         auto it = priority.find(p.id);
         if (it != priority.end()) {
@@ -41,6 +43,7 @@ bool pickRoleTeams(const std::vector<Player>& candidates,
                    const std::unordered_map<int, int>& priority,
                    std::string& error) {
     std::unordered_set<int> used;
+    // Reserve the user's spot so they are not picked again.
     used.insert(user.id);
 
     std::vector<Role> roles = allRoles();
@@ -53,6 +56,7 @@ bool pickRoleTeams(const std::vector<Player>& candidates,
             error = "Not enough players for team A role: " + roleLabel(r);
             return false;
         }
+        // Fill remaining roles for team A first.
         teamAIds.push_back(id);
         used.insert(id);
     }
@@ -63,6 +67,7 @@ bool pickRoleTeams(const std::vector<Player>& candidates,
             error = "Not enough players for team B role: " + roleLabel(r);
             return false;
         }
+        // Then fill every role for team B.
         teamBIds.push_back(id);
         used.insert(id);
     }

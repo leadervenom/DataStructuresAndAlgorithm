@@ -5,8 +5,10 @@
 
 static std::string toLower(const std::string& s) {
     std::string out;
+    // Reserve to avoid reallocations during push_back.
     out.reserve(s.size());
     for (char c : s) {
+        // Lowercase using unsigned char to avoid UB.
         out.push_back(static_cast<char>(std::tolower(static_cast<unsigned char>(c))));
     }
     return out;
@@ -17,6 +19,7 @@ static bool pickBan(const std::string& teamName,
                     std::vector<Hero>& pool,
                     std::vector<Hero>& bans) {
     while (true) {
+        // Prompt until a valid hero is chosen.
         std::cout << teamName << " ban #" << banNumber << " (enter hero name): ";
         std::string choice;
         if (!(std::cin >> choice)) {
@@ -26,10 +29,12 @@ static bool pickBan(const std::string& teamName,
             continue;
         }
 
+        // Search the pool for a case-insensitive match.
         std::string wanted = toLower(choice);
         bool found = false;
         for (size_t i = 0; i < pool.size(); ++i) {
             if (toLower(pool[i].name) == wanted) {
+                // Move the hero to the banned list.
                 bans.push_back(pool[i]);
                 pool.erase(pool.begin() + i);
                 found = true;
@@ -49,11 +54,13 @@ bool runBanPhase(const std::vector<Hero>& heroes,
                  std::vector<Hero>& bannedA,
                  std::vector<Hero>& bannedB,
                  std::string& error) {
+    // Need at least 8 heroes for 4 bans each team.
     if (heroes.size() < 8) {
         error = "Not enough heroes to ban (need at least 8).";
         return false;
     }
 
+    // Copy into a mutable pool that shrinks on each ban.
     std::vector<Hero> pool = heroes;
     for (int i = 1; i <= 4; ++i) {
         if (!pickBan("Team A", i, pool, bannedA)) {
@@ -69,10 +76,12 @@ bool runBanPhase(const std::vector<Hero>& heroes,
         }
     }
 
+    // Both teams completed all bans.
     return true;
 }
 
 void printBans(const std::string& teamName, const std::vector<Hero>& bans) {
+    // Print each banned hero with optional role.
     std::cout << teamName << " bans:\n";
     for (const auto& hero : bans) {
         std::cout << "- " << hero.name;
