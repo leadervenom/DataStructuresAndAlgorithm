@@ -26,38 +26,50 @@ bool parseRoleToken(const string& token, Role& out) {
 }
 
 // Parse CSV line into a Player record.
+// Expected formats:
+//   id,mmr,behavior
+//   id,mmr,behavior,role
 bool parsePlayerLine(const string& line, Player& out) {
+    // Empty line = invalid.
     if (line.empty()) {
         return false;
     }
 
+    // Use a stringstream to split by commas.
     stringstream ss(line);
     string token;
+
+    // 1) Parse id.
     if (!getline(ss, token, ',')) return false;
     try {
         out.id = stoi(token);
     } catch (...) {
-        return false;
+        return false; // Non-numeric id.
     }
 
+    // 2) Parse mmr.
     if (!getline(ss, token, ',')) return false;
     try {
         out.mmr = stoi(token);
     } catch (...) {
-        return false;
+        return false; // Non-numeric mmr.
     }
 
+    // 3) Parse behavior.
     if (!getline(ss, token, ',')) return false;
     try {
         out.behavior = stoi(token);
     } catch (...) {
-        return false;
+        return false; // Non-numeric behavior.
     }
 
+    // 4) Optional role. If missing, assign based on id.
     if (!getline(ss, token, ',')) {
         out.role = roleFromIndex(out.id);
         return true;
     }
+
+    // If role token exists, parse it into a Role enum.
     if (!parseRoleToken(token, out.role)) return false;
 
     return true;
@@ -186,19 +198,24 @@ int main() {
     vector<Player> teamB;
     string error;
 
+    // File path where skip counts are stored between runs.
     const string priorityPath = "priority.csv";
+    // Load current priority (miss counts) or start empty if file is missing.
     unordered_map<int, int> priority = loadPriority(priorityPath);
 
+    // Build teams using priority to favor players skipped in previous rounds.
     if (!buildTeams(matchmakingQueue, user, teamA, teamB, priority, error)) {
         cout << error << "\n";
         return 0;
     }
 
+    // Show the final team rosters.
     cout << "\nTEAM A:\n";
     printTeam("Team A", teamA);
     cout << "TEAM B:\n";
     printTeam("Team B", teamB);
 
+    // Gather selected ids to update priority after this round.
     vector<int> selectedIds;
     selectedIds.reserve(teamA.size() + teamB.size());
     for (const auto& p : teamA) {
@@ -207,9 +224,12 @@ int main() {
     for (const auto& p : teamB) {
         selectedIds.push_back(p.id);
     }
+    // Increase misses for non-selected players, reset selected players to 0.
     updatePriorityForRound(allPlayers, selectedIds, priority);
+    // Save updated priority for the next run.
     savePriority(priorityPath, priority);
 
+    // Load heroes to start the ban phase.
     vector<Hero> heroes = loadHeroesFromCsv("heroes.csv");
     if (heroes.empty()) {
         cout << "Failed to load heroes.csv or no heroes found.\n";
