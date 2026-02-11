@@ -1,4 +1,3 @@
-#Data Structure and Algorithm
 # Queue-Based Game Matchmaking System (C++)
 
 A semester-end project for **SCSE2103-01 Data Structures & Algorithm** at **Universiti Teknologi Malaysia (UTM)**.
